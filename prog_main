@@ -1,0 +1,130 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Login App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: Colors.lightBlue[50],  // Color de fondo modificado
+      ),
+      home: LoginScreen(),
+    );
+  }
+}
+
+class LoginScreen extends StatelessWidget {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  void _validateLogin(BuildContext context) {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    // Verifica si el usuario y la contraseña son correctos (por ejemplo, "admin" y "1234")
+    if (username == 'admin' && password == '1234') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen(isValidUser: true)),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen(isValidUser: false)),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.lock, size: 100, color: Colors.blue), // Ícono de la app
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _validateLogin(context),
+                child: Text('Login'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  final bool isValidUser;
+
+  HomeScreen({required this.isValidUser});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: AlertDialog(
+          title: Text(isValidUser ? 'Login Successful' : 'Login Failed'),
+          content: Row(
+            children: <Widget>[
+              Icon(
+                isValidUser ? Icons.check_circle : Icons.error,
+                color: isValidUser ? Colors.green : Colors.red,
+                size: 50,
+              ),
+              SizedBox(width: 20),
+              Text(
+                isValidUser ? 'Welcome, user!' : 'Invalid username or password.',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
