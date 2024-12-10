@@ -1,128 +1,139 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Login App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        scaffoldBackgroundColor: Colors.lightBlue[50],  // Color de fondo modificado
       ),
-      home: LoginScreen(),
+      home: const LoginScreen(),
     );
   }
 }
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _validateLogin(BuildContext context) {
+  void _validateUser(BuildContext context) {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    // Verifica si el usuario y la contraseña son correctos (por ejemplo, "admin" y "1234")
-    if (username == 'admin' && password == '1234') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen(isValidUser: true)),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen(isValidUser: false)),
-      );
-    }
+    bool isValid = username == "admin" && password == "1234";
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultScreen(isValid: isValid),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
-        centerTitle: true,
+        title: const Text('Login'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.lock, size: 100, color: Colors.blue), // Ícono de la app
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => _validateLogin(context),
-                child: Text('Login'),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.blue,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                ),
-              ),
-            ],
-          ),
+      body: Container(
+        padding: const EdgeInsets.all(20.0),
+        color: Colors.lightBlue[50], // Fondo personalizado
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.lock,
+              size: 100,
+              color: Colors.blue,
+            ),
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(labelText: 'Usuario'),
+            ),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'Contraseña'),
+              obscureText: true,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => _validateUser(context),
+              child: const Text('Ingresar'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  final bool isValidUser;
+class ResultScreen extends StatelessWidget {
+  final bool isValid;
 
-  HomeScreen({required this.isValidUser});
+  const ResultScreen({Key? key, required this.isValid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: AlertDialog(
-          title: Text(isValidUser ? 'Login Successful' : 'Login Failed'),
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(isValid ? 'Usuario Válido' : 'Usuario Inválido'),
           content: Row(
-            children: <Widget>[
+            children: [
               Icon(
-                isValidUser ? Icons.check_circle : Icons.error,
-                color: isValidUser ? Colors.green : Colors.red,
+                isValid ? Icons.check_circle : Icons.error,
+                color: isValid ? Colors.green : Colors.red,
                 size: 50,
               ),
-              SizedBox(width: 20),
+              const SizedBox(width: 10),
               Text(
-                isValidUser ? 'Welcome, user!' : 'Invalid username or password.',
-                style: TextStyle(fontSize: 16),
+                isValid
+                    ? 'Has ingresado correctamente.'
+                    : 'Usuario o contraseña incorrectos.',
               ),
             ],
           ),
-          actions: <Widget>[
+          actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
+              onPressed: () {
+                Navigator.pop(context); // Cerrar el diálogo
+                Navigator.pop(context); // Regresar al login
+              },
+              child: const Text('Aceptar'),
             ),
           ],
+        ),
+      );
+    });
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Resultado'),
+      ),
+      body: Container(
+        color: isValid ? Colors.green[50] : Colors.red[50],
+        child: const Center(
+          child: Text(
+            'Procesando validación...',
+            style: TextStyle(fontSize: 18),
+          ),
         ),
       ),
     );
